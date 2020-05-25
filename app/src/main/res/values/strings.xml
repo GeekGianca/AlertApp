@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">AlertsApp</string>
+    <string name="tab_text_1">Detalles de alerta</string>
+    <string name="tab_text_2">Registros</string>
+    <string name="toolbar_title_home">Alertas</string>
+    <string name="hint_label_device">Nombre del dispositivo</string>
+    <string name="hint_uuid_device">UUID Asociado</string>
+    <string name="hint_description_device">Posicion en sitio, o descripción</string>
+    <string name="label_text_button">Capturar imagen de referencia</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="label_alert">Alerta de salidas</string>
+</resources>
