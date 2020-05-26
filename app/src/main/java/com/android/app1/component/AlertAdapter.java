@@ -38,7 +38,7 @@ public class AlertAdapter extends RecyclerView.Adapter<AlertViewHolder> {
         AlertModel a = alertModelList.get(position);
         holder.dateOut.setText(String.format("Fecha salida: %s", a.getDate()));
         holder.timeOut.setText(String.format("Hora salida: %s", a.getTime()));
-        holder.deviceOut.setText("Dispositivo: Desconocido");
+        holder.deviceOut.setText("Dispositivo: "+a.getDevice());
     }
 
     @Override

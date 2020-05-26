@@ -25,6 +25,10 @@ import com.android.app1.R;
 import com.android.app1.component.AlertAdapter;
 import com.android.app1.model.AlertModel;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -49,6 +53,7 @@ public class DetailFragment extends Fragment {
 
     private static final String ARG_SECTION_NUMBER = "section_number";
     private Context context;
+    private FirebaseDatabase mDatabase;
 
     @BindView(R.id.refreshSms)
     SwipeRefreshLayout refreshSms;
@@ -83,12 +88,10 @@ public class DetailFragment extends Fragment {
         LinearLayoutManager manager = new LinearLayoutManager(context);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         listSms.setLayoutManager(manager);
-        refreshSms.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshSms.setRefreshing(true);
-                checkPermissions();
-            }
+        refreshSms.setOnRefreshListener(() -> {
+            refreshSms.setRefreshing(true);
+            //checkPermissions();
+            loadFromFirebase();
         });
         return root;
     }
@@ -102,7 +105,8 @@ public class DetailFragment extends Fragment {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
                         if (multiplePermissionsReport.areAllPermissionsGranted()) {
-                            loadSms();
+                            //loadSms();
+                            loadFromFirebase();
                         }
                         if (multiplePermissionsReport.isAnyPermissionPermanentlyDenied()) {
                             MaterialAlertDialogBuilder build = new MaterialAlertDialogBuilder(context, R.style.AlertDialogTheme);
@@ -168,6 +172,30 @@ public class DetailFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        checkPermissions();
+        //checkPermissions();
+        mDatabase = FirebaseDatabase.getInstance();
+        loadFromFirebase();
+    }
+
+    private void loadFromFirebase() {
+        modelList = new ArrayList<>();
+        mDatabase.getReference("departures").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    AlertModel model = postSnapshot.getValue(AlertModel.class);
+                    modelList.add(model);
+                }
+                AlertAdapter adapter = new AlertAdapter(modelList, context);
+                listSms.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
+                refreshSms.setRefreshing(false);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 }

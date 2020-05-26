@@ -1,6 +1,11 @@
 package com.android.app1.model;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class AlertModel {
+    private String id;
     private String date;
     private String time;
     private String device;
@@ -36,5 +41,14 @@ public class AlertModel {
 
     public void setDevice(String device) {
         this.device = device;
+    }
+
+    public Map<String, Object> toMap(){
+        Map<String, Object> al = new HashMap<>();
+        al.put("id", UUID.randomUUID().toString());
+        al.put("device", getDevice());
+        al.put("date", getDate());
+        al.put("time", getTime());
+        return al;
     }
 }

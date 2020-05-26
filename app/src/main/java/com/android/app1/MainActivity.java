@@ -273,8 +273,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void saveDeviceToJson(String imageUrl) {
         DeviceModel model = new DeviceModel();
-        String id = UUID.randomUUID().toString();
-        model.setId(id);
+        model.setId(UUID.randomUUID().toString());
         model.setName(inputDevice.getText().toString());
         model.setDescription(inputDescription.getText().toString());
         model.setUuid(inputUuid.getText().toString());

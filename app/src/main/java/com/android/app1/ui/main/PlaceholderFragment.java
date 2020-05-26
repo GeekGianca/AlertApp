@@ -26,16 +26,23 @@ import com.android.app1.R;
 import com.android.app1.component.DeviceAdapter;
 import com.android.app1.component.Injected;
 import com.android.app1.component.ViewModelProviderFactory;
+import com.android.app1.model.AlertModel;
 import com.android.app1.model.DeviceModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -152,26 +159,42 @@ public class PlaceholderFragment extends Fragment {
             try {
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage("3226036144", null, deviceModelList.get(item.getOrder()).getUuid(), null, null);
-                Toast.makeText(context, "Se ha solicitado el permiso.", Toast.LENGTH_SHORT).show();
+                AlertModel model = new AlertModel();
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
+                SimpleDateFormat stf = new SimpleDateFormat("HH:mm:ss", Locale.US);
+                model.setTime(stf.format(new Date()));
+                model.setDate(sdf.format(new Date()));
+                model.setDevice(deviceModelList.get(item.getOrder()).getName());
+                mDatabase.getReference().child("departures").child(UUID.randomUUID().toString())
+                        .setValue(model.toMap())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(context, "Se ha solicitado el permiso.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
                 Toast.makeText(context, "Error al solicitar permiso en el dispositivo.", Toast.LENGTH_SHORT).show();
             }
         } else if (item.getTitle().equals("Remover")) {
             DeviceModel model = deviceModelList.get(item.getOrder());
-            mDatabase.getReference("devices").child(model.getId()).removeValue()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(context, "Se elimino correctamente.", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(context, "Error al eliminar el dispositivo.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            Query deviceQ = mDatabase.getReference("devices").orderByChild("id").equalTo(model.getId());
+            deviceQ.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    for (DataSnapshot appleSnapshot: dataSnapshot.getChildren()) {
+                        appleSnapshot.getRef().removeValue();
+                    }
+                    Toast.makeText(context, "Se elimino correctamente.", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(context, "Error al eliminar.", Toast.LENGTH_SHORT).show();
+                }
+            });
+
         }
         return super.onContextItemSelected(item);
     }
