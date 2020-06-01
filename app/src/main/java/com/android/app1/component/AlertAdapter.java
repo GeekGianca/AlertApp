@@ -36,9 +36,10 @@ public class AlertAdapter extends RecyclerView.Adapter<AlertViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull AlertViewHolder holder, int position) {
         AlertModel a = alertModelList.get(position);
+        holder.info.setText(String.format("Alerta de %s", a.getType()));
         holder.dateOut.setText(String.format("Fecha salida: %s", a.getDate()));
         holder.timeOut.setText(String.format("Hora salida: %s", a.getTime()));
-        holder.deviceOut.setText("Dispositivo: "+a.getDevice());
+        holder.deviceOut.setText("Dispositivo: " + a.getDevice());
     }
 
     @Override
@@ -46,8 +47,10 @@ public class AlertAdapter extends RecyclerView.Adapter<AlertViewHolder> {
         return alertModelList.size();
     }
 }
-class AlertViewHolder extends RecyclerView.ViewHolder {
 
+class AlertViewHolder extends RecyclerView.ViewHolder {
+    @BindView(R.id.info)
+    TextView info;
     @BindView(R.id.deviceOut)
     TextView deviceOut;
     @BindView(R.id.dateOut)

@@ -3,11 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/device_layout"
-        style="@style/CommonTextInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
@@ -26,15 +26,17 @@
             android:imeOptions="actionNext"
             android:inputType="textCapWords"
             android:textColor="@color/colorPrimary"
+            android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/uuid_layout"
-        style="@style/CommonTextInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -55,15 +57,17 @@
             android:imeOptions="actionNext"
             android:inputType="textCapWords"
             android:textColor="@color/colorPrimary"
+            android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layout_description"
-        style="@style/CommonTextInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -84,9 +88,11 @@
             android:imeOptions="actionNext"
             android:inputType="textCapWords"
             android:textColor="@color/colorPrimary"
+            android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="SmallSp" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -96,11 +102,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:layout_marginBottom="10dp"
         android:fontFamily="@font/comfortaa_bold"
         android:text="@string/label_text_button"
+        android:textAllCaps="false"
         android:textSize="11sp"
-        app:iconGravity="end"
         app:icon="@drawable/ic_add_a_photo"
+        app:iconGravity="end"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/layout_description"
         app:layout_constraintStart_toStartOf="@+id/layout_description"
         app:layout_constraintTop_toBottomOf="@+id/layout_description"

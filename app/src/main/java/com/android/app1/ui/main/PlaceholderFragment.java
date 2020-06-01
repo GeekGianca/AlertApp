@@ -8,29 +8,27 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.app1.MainActivity;
 import com.android.app1.R;
+import com.android.app1.common.Common;
 import com.android.app1.component.DeviceAdapter;
 import com.android.app1.component.Injected;
 import com.android.app1.component.ViewModelProviderFactory;
 import com.android.app1.model.AlertModel;
 import com.android.app1.model.DeviceModel;
-import com.google.android.gms.tasks.OnFailureListener;
+import com.android.app1.model.Out;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -43,6 +41,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+
+import io.paperdb.Paper;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -58,6 +58,7 @@ public class PlaceholderFragment extends Fragment {
     private RecyclerView listDevices;
     private FirebaseDatabase mDatabase;
     private List<DeviceModel> deviceModelList;
+    private List<Out> UUIDAwaiting;
 
     public static PlaceholderFragment newInstance(int index) {
         PlaceholderFragment fragment = new PlaceholderFragment();
@@ -71,11 +72,13 @@ public class PlaceholderFragment extends Fragment {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         this.context = context;
+        Log.d(TAG, "onAttach");
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
     }
 
     @Override
@@ -134,6 +137,7 @@ public class PlaceholderFragment extends Fragment {
                         deviceModelList.clear();
                         for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             DeviceModel model = postSnapshot.getValue(DeviceModel.class);
+                            Common.CURRENT_DEVICE_LIST.add(model.getUuid());
                             deviceModelList.add(model);
                         }
                         addToAdapter();
@@ -164,15 +168,21 @@ public class PlaceholderFragment extends Fragment {
                 SimpleDateFormat stf = new SimpleDateFormat("HH:mm:ss", Locale.US);
                 model.setTime(stf.format(new Date()));
                 model.setDate(sdf.format(new Date()));
+                model.setType("Salida");
                 model.setDevice(deviceModelList.get(item.getOrder()).getName());
+                try{
+                    UUIDAwaiting = Paper.book().read("await");
+                    if(UUIDAwaiting == null){
+                        UUIDAwaiting = new ArrayList<>();
+                    }
+                }catch (Exception e){
+                    UUIDAwaiting = new ArrayList<>();
+                }
+                UUIDAwaiting.add(new Out(deviceModelList.get(item.getOrder()).getUuid(), model.getDevice()));
+                Paper.book().write("await", UUIDAwaiting);
                 mDatabase.getReference().child("departures").child(UUID.randomUUID().toString())
                         .setValue(model.toMap())
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(context, "Se ha solicitado el permiso.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        .addOnSuccessListener(aVoid -> Toast.makeText(context, "Se ha solicitado el permiso.", Toast.LENGTH_SHORT).show());
             } catch (Exception e) {
                 Log.e(TAG, e.getMessage(), e);
                 Toast.makeText(context, "Error al solicitar permiso en el dispositivo.", Toast.LENGTH_SHORT).show();

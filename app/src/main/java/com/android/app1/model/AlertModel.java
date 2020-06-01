@@ -9,11 +9,13 @@ public class AlertModel {
     private String date;
     private String time;
     private String device;
+    private String type;
 
-    public AlertModel(String date, String time, String device) {
+    public AlertModel(String date, String time, String device, String type) {
         this.date = date;
         this.time = time;
         this.device = device;
+        this.type = type;
     }
 
     public AlertModel() {
@@ -43,12 +45,21 @@ public class AlertModel {
         this.device = device;
     }
 
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
     public Map<String, Object> toMap(){
         Map<String, Object> al = new HashMap<>();
         al.put("id", UUID.randomUUID().toString());
         al.put("device", getDevice());
         al.put("date", getDate());
         al.put("time", getTime());
+        al.put("type", getType());
         return al;
     }
 }

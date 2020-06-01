@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.app1.MainActivity;
 import com.android.app1.R;
@@ -105,8 +106,7 @@ public class DetailFragment extends Fragment {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
                         if (multiplePermissionsReport.areAllPermissionsGranted()) {
-                            //loadSms();
-                            loadFromFirebase();
+                            Toast.makeText(context, "Permisos de mensajes garantizados.", Toast.LENGTH_SHORT).show();
                         }
                         if (multiplePermissionsReport.isAnyPermissionPermanentlyDenied()) {
                             MaterialAlertDialogBuilder build = new MaterialAlertDialogBuilder(context, R.style.AlertDialogTheme);
@@ -150,18 +150,21 @@ public class DetailFragment extends Fragment {
         int indexAddress = cursor.getColumnIndex("address");
         int indexDate = cursor.getColumnIndex("date");
         if (indexBody < 0 || !cursor.moveToFirst()) return;
+        AlertModel model;
         do {
-            Log.d(TAG, cursor.getString(indexBody));
-            TimeZone timeZoneUTC = TimeZone.getDefault();
-            int offsetFromUTC = timeZoneUTC.getOffset(new Date().getTime()) * -1;
-            SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-            SimpleDateFormat simpleFormat2 = new SimpleDateFormat("HH:mm:ss", Locale.US);
-            Date date = new Date(cursor.getLong(indexDate) + offsetFromUTC);
-            AlertModel model = new AlertModel();
-            model.setDate(simpleFormat.format(date));
-            model.setDevice(cursor.getString(indexBody));
-            model.setTime(simpleFormat2.format(date));
-            modelList.add(model);
+            Log.d(TAG, cursor.getString(indexAddress));
+            if (cursor.getString(indexAddress).equals("322603614")) {
+                TimeZone timeZoneUTC = TimeZone.getDefault();
+                int offsetFromUTC = timeZoneUTC.getOffset(new Date().getTime()) * -1;
+                SimpleDateFormat simpleFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                SimpleDateFormat simpleFormat2 = new SimpleDateFormat("HH:mm:ss", Locale.US);
+                Date date = new Date(cursor.getLong(indexDate) + offsetFromUTC);
+                model = new AlertModel();
+                model.setDate(simpleFormat.format(date));
+                model.setDevice(cursor.getString(indexBody));
+                model.setTime(simpleFormat2.format(date));
+                modelList.add(model);
+            }
         } while (cursor.moveToNext());
         AlertAdapter adapter = new AlertAdapter(modelList, context);
         listSms.setAdapter(adapter);
@@ -172,7 +175,7 @@ public class DetailFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        //checkPermissions();
+        checkPermissions();
         mDatabase = FirebaseDatabase.getInstance();
         loadFromFirebase();
     }
@@ -182,6 +185,7 @@ public class DetailFragment extends Fragment {
         mDatabase.getReference("departures").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                modelList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     AlertModel model = postSnapshot.getValue(AlertModel.class);
                     modelList.add(model);
